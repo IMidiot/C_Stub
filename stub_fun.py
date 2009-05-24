@@ -4,31 +4,50 @@
 import re
 import os,sys
 
-def fun_main(file):
-    '''读取文件内容'''
-    file_path=os.path.abspath(file)
-    handle = open(file_path, 'r')
-    text = handle.read()
-    handle.close()
-    handle = open(file_path, 'r')
-    text_lines = tuple(handle.readlines())
-    handle.close()
-    
-    line = line_num(text_lines)
-    p_and_c = pre_and_comment(text,line)
+class code_info:
+    def __init__(self , code_file):
+        self.file_path = os.path.abspath(code_file)
+        handle = open(self.file_path, 'r')
+        self.text = handle.read()
+        handle.seek(0)
+        self.text_lines = tuple(handle.readlines())
+        handle.close()
+        
+        self.line_side = line_num(self.text_lines)
+        self.p_and_c = search_pre_and_comment(self.text , self.line_side)
+        self.empty_text = remove_pre_and_comment(self.text,self.p_and_c)
+        
+
+def fun_main(c_file):
+    w = code_info(c_file)
+    print w.empty_text
 
 def line_num(text_lines):
     ''''每行的开始位置及结束位置'''
     re=[]
-    text_num=0
+    text_num = 0
     for line in text_lines:
         temp=[text_num , text_num+len(line)-1]
-        text_num+=len(line)
+        text_num += len(line)
         re.append(temp)
     return tuple(re)
+
+def remove_pre_and_comment(text,p_and_c):
+    '''去除预处理、注释、字符串'''
+    no_p_and_c_text = ''
+    ch_side_list = []
+    for x in p_and_c:
+        for i in range(x[0] , x[1]+1):
+            ch_side_list.append(i)
+    for i in range(0 , len(text)):
+        if i in ch_side_list:
+            no_p_and_c_text += ' '
+        else:
+            no_p_and_c_text += text[i]
+    return no_p_and_c_text
     
-def pre_and_comment(text,line):
-    '''返回:预处理位置(list) 入口:由源文件读取的str、每行起始位置'''
+def search_pre_and_comment(text,line):
+    '''返回:预处理、注释、字符串位置 入口:由源文件读取的str、每行起始位置'''
     rtn_list=[]
     #----------pre----------
     pre_begin=False
