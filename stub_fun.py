@@ -157,5 +157,13 @@ def fun_stub(fun_block , file_path):
             tmp+=';%X' % num_return
             stub_list.append([i[1],'}'])
         ds_list.append(tmp)
-        print ds_list
+        #-----if-----
+        if_list = stub_search.search_if(fun[0])
+        for i in if_list:
+            num_branch+=1
+            stub_list.append([i[0],'(('])
+            stub_list.append([i[1],'?(ctTag(0x%x),1):(ctTag(0x%X),0))' % (num_branch , num_branch+1)])
+            ds_list.append('%X;if;%s;%s;false;%X' % (num_branch+1 , fun[1],file_path , num_branch))
+            num_branch += 1
+    print ds_list
     print stub_list

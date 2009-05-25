@@ -88,7 +88,7 @@ def search_return(text):
         if exit_begin == -1:
             break
         if ((text[exit_begin-1] == '\n' or
-        text[exit_begin-1] == '	' or
+        text[exit_begin-1] ==  '	' or
         text[exit_begin-1] == ' ' or
         text[exit_begin-1] == '}' or
         text[exit_begin-1] == ';' or
@@ -100,4 +100,42 @@ def search_return(text):
             temp.append(exit_end)
             temp.append('exit')
             re.append(temp)
+    return tuple(re)
+
+def search_if(text):
+    re=[]
+    if_begin=0
+    if_end=0
+    while 1:
+        temp = []
+        if_begin = text.find('if' , if_end)
+        if_end = text.find('(' , if_begin+2)
+        if if_begin==-1:
+            break
+        if ((text[if_begin-1] == '\n' or
+        text[if_begin-1] ==  '	' or
+        text[if_begin-1] == ' ' or
+        text[if_begin-1] == ';' or
+        text[if_begin-1] == '}' or
+        text[if_begin-1] == ')') and
+        (text[if_begin+2] == '  ' or
+        text[if_begin+2] == ' ' or
+        text[if_begin+2] == '(')):
+            if_begin = if_end
+            lift = 0
+            right = 0
+            end = 0
+            for i in range(if_begin , len(text)-1):
+                if text[i] == '(':
+                    lift += 1
+                elif text[i] == ')':
+                    right += 1
+                    end = i
+                if lift != 0 and right != 0:
+                    if lift == right:
+                        temp.append(if_begin-1)
+                        temp.append(end)
+                        temp.append('if')
+                        re.append(temp)
+                        break
     return tuple(re)
