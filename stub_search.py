@@ -258,3 +258,55 @@ def search_switch(text):
                         re.append([text[temp[0]:temp[1]+1],temp[0],temp[1]])
                         break
     return tuple(re)
+
+def search_case(switch_list):
+    re = []
+    for i in switch_list:
+        case_begin = 0
+        case_end = 0
+        case_side = 0
+        while 1:
+            case_begin = i[0].find('case' , case_end)
+            case_end = i[0].find(':' , case_begin+4)
+            if case_begin == -1:
+                break
+            if ((i[0][case_begin-1] == '\n' or
+            i[0][case_begin-1] ==  '	' or
+            i[0][case_begin-1] == ' ' or
+            i[0][case_begin-1] == '}' or
+            i[0][case_begin-1] == ';' or
+            i[0][case_begin-1] == ')') and
+            (i[0][case_begin+4] == '	' or
+            i[0][case_begin+4] == ' ' or
+            i[0][case_begin+4] == '\n' or
+            i[0][case_begin+4] == '{' or
+            i[0][case_begin+4] == '(')):
+                re.append([case_begin-1+i[1] , case_end+i[1] , 'case' , case_side])
+                case_side += 1
+        default_begin = i[0].find('default')
+        default_end = i[0].find(':' , default_begin+7)
+        if default_begin != -1:
+            if ((i[0][default_begin-1] == '\n' or
+                i[0][default_begin-1] == '	' or
+                i[0][default_begin-1] == ' ' or
+                i[0][default_begin-1] == '}' or
+                i[0][default_begin-1] == ';' or
+                i[0][default_begin-1] == ')') and
+                (i[0][default_begin+7] ==  '	' or
+                i[0][default_begin+7] == ' ' or
+                i[0][default_begin+7] == '\n' or
+                i[0][default_begin+7] == ':')):
+                    re.append([default_begin-1+i[1] , default_end+i[1] , 'default' , case_side])
+        if len(re) != 0:
+            for j in range(0 , len(re)):
+                if j != len(re)-1:
+                    if i[0].find('break' , re[j][1] , re[j+1][0])!=-1:
+                        re[j].append('y')
+                    else:
+                        re[j].append('n')
+                if j == len(re)-1:
+                    if i[0].find('break' , re[j][1])!=-1:
+                        re[j].append('y')
+                    else:
+                        re[j].append('n')
+    return tuple(re)

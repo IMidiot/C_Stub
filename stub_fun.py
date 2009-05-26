@@ -183,5 +183,7 @@ def fun_stub(fun_block , file_path):
             num_branch += 1
         #-----switch-----
         switch_list=stub_search.search_switch(fun[0])
-    print ds_list
-    print stub_list
+        case_list = stub_search.search_case(switch_list)
+        print case_list
+    #print ds_list
+    #print stub_list
