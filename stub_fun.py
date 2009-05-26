@@ -154,7 +154,7 @@ def fun_stub(fun_block , file_path):
         for i in return_list:
             num_return+=1
             stub_list.append([i[0],'{ctTag(0x%X);' % num_return])
-            tmp+=';%X' % num_return
+            tmp+='%X' % num_return
             stub_list.append([i[1],'}'])
         ds_list.append(tmp)
         #-----if-----
@@ -165,5 +165,23 @@ def fun_stub(fun_block , file_path):
             stub_list.append([i[1],'?(ctTag(0x%x),1):(ctTag(0x%X),0))' % (num_branch , num_branch+1)])
             ds_list.append('%X;if;%s;%s;false;%X' % (num_branch+1 , fun[1],file_path , num_branch))
             num_branch += 1
+        #-----for-----
+        for_list = stub_search.search_for(fun[0])
+        for i in for_list:
+            num_branch += 1
+            stub_list.append([i[0],'(('])
+            stub_list.append([i[1],'?(ctTag(0x%x),1):(ctTag(0x%X),0))' % (num_branch,num_branch+1)])
+            ds_list.append('%X;for;%s;%s;false;%X' % (num_branch+1,fun[1],file_path,num_branch))
+            num_branch+=1
+        #-----while-----
+        while_list = stub_search.search_while(fun[0])
+        for i in while_list:
+            num_branch += 1
+            stub_list.append([i[0] , '(('])
+            stub_list.append([i[1] , '?(ctTag(0x%x),1):(ctTag(0x%X),0))' % (num_branch , num_branch+1)])
+            ds_list.append('%X;whlie;%s;%s;false;%X' % (num_branch+1 , fun[1] , file_path , num_branch))
+            num_branch += 1
+        #-----switch-----
+        switch_list=stub_search.search_switch(fun[0])
     print ds_list
     print stub_list

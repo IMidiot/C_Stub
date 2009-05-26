@@ -139,3 +139,122 @@ def search_if(text):
                         re.append(temp)
                         break
     return tuple(re)
+
+def search_for(text):
+    re = []
+    for_begin = 0
+    for_end = 0
+    while 1:
+        temp=[]
+        for_begin = text.find('for' , for_end)
+        for_end = text.find('(' , for_begin+3)
+        if for_begin == -1:
+            break
+        if ((text[for_begin-1] == '\n' or
+        text[for_begin-1] == '	' or
+        text[for_begin-1] == ' ' or
+        text[for_begin-1] == ';' or
+        text[for_begin-1] == '}' or
+        text[for_begin-1] == ')') and
+        (text[for_begin+3] ==  '	' or
+        text[for_begin+3] == ' ' or
+        text[for_begin+3] == '(')):
+            #ifBegin=ifEnd
+            lift = 0
+            right = 0
+            end = 0
+            for i in range(for_begin , len(text)-1):
+                if text[i] == '(':
+                    lift += 1
+                elif text[i] == ')':
+                    right += 1
+                    end = i
+                if lift != 0 and right != 0:
+                    if lift == right:
+                        temp.append(for_begin-1)
+                        temp.append(end)
+                        temp.append('for')
+                        re.append(temp)
+                        break
+    return tuple(re)
+
+def search_while(text):
+    re = []
+    while_begin = 0
+    while_end = 0
+    while 1:
+        temp = []
+        while_begin = text.find('while' , while_end)
+        while_end = text.find('(' , while_begin+5)
+        if while_begin == -1:
+            break
+        if ((text[while_begin-1] == '\n' or
+        text[while_begin-1] == '	' or
+        text[while_begin-1] == ' ' or
+        text[while_begin-1] == ';' or
+        text[while_begin-1] == '}' or
+        text[while_begin-1] == ')') and
+        (text[while_begin+5] == '	' or
+        text[while_begin+5] == ' ' or
+        text[while_begin+5] == '(')):
+            while_begin = while_end
+            lift = 0
+            right = 0
+            end = 0
+            for i in range(while_begin , len(text)-1):
+                if text[i] == '(':
+                    lift += 1
+                elif text[i] == ')':
+                    right += 1
+                    end = i
+                if lift != 0 and right != 0:
+                    if lift == right:
+                        temp.append(while_begin-1)
+                        temp.append(end)
+                        re.append(temp)
+                        break
+    for x in re:
+        temp = text[x[1]+1:].lstrip()
+        if temp.startswith(';'):
+            x.append('do')
+        else:
+            x.append('while')
+    return tuple(re)
+
+def search_switch(text):
+    re = []
+    switch_begin = 0
+    switch_end = 0
+    while 1:
+        temp = []
+        switch_begin = text.find('switch' , switch_end)
+        switch_end = text.find('{' , switch_begin+6)
+        if switch_begin == -1:
+            break
+        if ((text[switch_begin-1] == '\n' or
+        text[switch_begin-1] == '	' or
+        text[switch_begin-1] == ' ' or
+        text[switch_begin-1] == ';' or
+        text[switch_begin-1] == '}' or
+        text[switch_begin-1] == ';' or
+        text[switch_begin-1] == ')') and
+        (text[switch_begin+6] == '	' or
+        text[switch_begin+6] == ' ' or
+        text[switch_begin+6] == '(')):
+            temp.append(switch_end)
+            lift = 0
+            right = 0
+            isBegin = False
+            end = 0
+            for i in range(switch_end , len(text)-1):
+                if text[i] == '{':
+                    lift += 1
+                elif text[i] == '}':
+                    right += 1
+                    end = i
+                if lift != 0 and right != 0:
+                    if lift == right:
+                        temp.append(end)
+                        re.append([text[temp[0]:temp[1]+1],temp[0],temp[1]])
+                        break
+    return tuple(re)
