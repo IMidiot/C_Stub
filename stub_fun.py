@@ -136,20 +136,23 @@ def fun_block_list(text , empty_text , fun_side , line_side):
     return (tuple(new_fun_block) , (old_fun_block) , (free_block))
 
 def fun_stub(fun_block , file_path):
-    ds_list=[]
+    new_text = ''
+    ds_list = []
     num_fun = 0x10000000
     num_return = 0x20000000
     num_branch = 0x30000000
+    num_case = 0x40000000
+    num_goto = 0
     
     for fun_id , fun in enumerate(fun_block[0]):
+        stub_list = []
         tmp = ''
         num_fun+=1
-        stub_list=[]
         stub_list.append([0,'ctTag(0x%X);{' % num_fun])
         tmp += '%X;%s;%s;%d;%d;start;' % (num_fun,fun[1] , file_path,fun[2] , fun[3])
         #-----return and exit-----
         num_return += 1
-        stub_list.append([len(fun[0])-2,'ctTag(0x%X);}' % num_return])
+        stub_list.append([len(fun[0])-2,'{ctTag(0x%X);}' % num_return])
         return_list = stub_search.search_return(fun[0])
         for i in return_list:
             num_return+=1
@@ -183,7 +186,39 @@ def fun_stub(fun_block , file_path):
             num_branch += 1
         #-----switch-----
         switch_list=stub_search.search_switch(fun[0])
+        #-----case-----
         case_list = stub_search.search_case(switch_list)
-        print case_list
-    #print ds_list
-    #print stub_list
+        for j in range(0,len(case_list)):
+            if case_list[j][2]=='case':
+                if j==0:
+                    num_case+=1
+                    stub_list.append([case_list[j][1],'ctTag(0x%X);' % num_case])
+                    ds_list.append('%X;case;%s;%s' % (num_case,fun[1],file_path))
+                else:
+                    if case_list[j-1][4]=='n':
+                        num_case+=1
+                        stub_list.append([case_list[j][1],'ctTag(0x%X);_amc_L%d:' % (num_case,num_goto)])
+                        ds_list.append('%X;case;%s;%s' % (num_case,fun[1],file_path))
+                        stub_list.append([case_list[j][0],'goto _amc_L%d;' % num_goto])
+                        num_goto+=1
+                    if case_list[j-1][4]=='y':
+                        num_case+=1
+                        stub_list.append([case_list[j][1],'ctTag(0x%X);' % num_case])
+                        ds_list.append('%X;case;%s;%s' % (num_case,fun[1],file_path))
+            if case_list[j][2]=='default':
+                num_case+=1
+                stub_list.append([case_list[j][1],'ctTag(0x%X);_amc_L%d:' % (num_case,num_goto)])
+                ds_list.append('%X;case;%s;%s' % (num_case,fun[1],file_path))
+                stub_list.append([case_list[j][0],'goto _amc_L%d;' % num_goto])
+                num_goto+=1
+        
+        stub_list.sort()
+        stub_list.reverse()
+        for stub in stub_list:
+            fun_block[1][fun_id][0] = fun_block[1][fun_id][0][:stub[0]+1]+stub[1]+fun_block[1][fun_id][0][stub[0]+1:]
+    
+    for i in range(0,len(fun_block[2])-1):
+        new_text+=fun_block[2][i]+fun_block[1][i][0]   
+    ds_list.sort()
+    return (tuple(ds_list) , new_text)
+

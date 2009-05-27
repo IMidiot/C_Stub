@@ -21,4 +21,4 @@ class code_info:
         
         self.fun_side = stub_search.search_fun(self.text)
         self.fun_block =  stub_fun.fun_block_list(self.text , self.empty_text , self.fun_side , self.line_side)
-        stub_fun.fun_stub(self.fun_block , self.file_path)
+        self.ds_list,self.new_text = stub_fun.fun_stub(self.fun_block , self.file_path)

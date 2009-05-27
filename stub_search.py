@@ -309,4 +309,4 @@ def search_case(switch_list):
                         re[j].append('y')
                     else:
                         re[j].append('n')
-    return tuple(re)
+    return re
