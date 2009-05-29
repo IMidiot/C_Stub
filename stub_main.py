@@ -31,19 +31,15 @@ class gui_window:
             file_path = file_dialog.get_filename()
             file_dialog.destroy()
             self.stub = stub_info.code_info(file_path)
-            self.textview_buf = gtk.TextBuffer()
             self.textview_buf.set_text(self.stub.get_text())
-            self.wTree.get_widget('textview').set_buffer(self.textview_buf)
         file_dialog.destroy()
+        self.new_textview_buf.set_text('')
+        self.ds_textview_buf.set_text('')
     
     def treat_button_clicked(self,widget):
         self.stub.stub_run()
-        self.new_textview_buf = gtk.TextBuffer()
-        self.ds_textview_buf = gtk.TextBuffer()
         self.new_textview_buf.set_text(self.stub.get_new_text())
         self.ds_textview_buf.set_text(self.stub.get_ds_text())
-        self.wTree.get_widget('new_textview').set_buffer(self.new_textview_buf)
-        self.wTree.get_widget('ds_textview').set_buffer(self.ds_textview_buf)
     
     def clean_button_clicked(self,widget):
         self.textview_buf.set_text('')
@@ -58,6 +54,12 @@ class gui_window:
                 "on_treat_button_clicked" : self.treat_button_clicked,
                 "on_clean_button_clicked" : self.clean_button_clicked}
         self.wTree.signal_autoconnect(dic)
+        self.textview_buf = gtk.TextBuffer()
+        self.new_textview_buf = gtk.TextBuffer()
+        self.ds_textview_buf = gtk.TextBuffer()
+        self.wTree.get_widget('textview').set_buffer(self.textview_buf)
+        self.wTree.get_widget('new_textview').set_buffer(self.new_textview_buf)
+        self.wTree.get_widget('ds_textview').set_buffer(self.ds_textview_buf)        
         self.window.show()
     
     def main(self):
