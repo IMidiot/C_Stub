@@ -149,15 +149,16 @@ def fun_stub(fun_block , file_path):
         tmp = ''
         num_fun+=1
         stub_list.append([0,'ctTag(0x%X);{' % num_fun])
-        tmp += '%X;%s;%s;%d;%d;start;' % (num_fun,fun[1] , file_path,fun[2] , fun[3])
+        tmp += '%X;%s;%s;%d;%d;start' % (num_fun,fun[1] , file_path,fun[2] , fun[3])
         #-----return and exit-----
         num_return += 1
         stub_list.append([len(fun[0])-2,'{ctTag(0x%X);}' % num_return])
+        tmp+=';%X' % num_return
         return_list = stub_search.search_return(fun[0])
         for i in return_list:
-            num_return+=1
+            num_return += 1
             stub_list.append([i[0],'{ctTag(0x%X);' % num_return])
-            tmp+='%X' % num_return
+            tmp+=';%X' % num_return
             stub_list.append([i[1],'}'])
         ds_list.append(tmp)
         #-----if-----
